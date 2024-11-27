@@ -1,0 +1,5 @@
+1;Chambre simple;50.0;1
+2;Chambre double;80.0;1
+3;Suite de luxe;150.0;0
+4;Chambre familiale;120.0;1
+5;Chambre avec balcon;90.0;1

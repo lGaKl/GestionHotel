@@ -1,0 +1,4 @@
+1;Petit-déjeuner inclus;10.0
+2;Demi-pension;30.0
+3;Pension complète;50.0
+4;All-inclusive;75.0

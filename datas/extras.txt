@@ -1,0 +1,5 @@
+1;Spa;20.0
+2;Piscine chauffée;15.0
+3;Accès fitness;10.0
+4;Massages relaxants;50.0
+5;Sauna;25.0
