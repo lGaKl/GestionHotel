@@ -1,5 +1,6 @@
-1;Spa;20.0
-2;Piscine chauffée;15.0
-3;Accès fitness;10.0
-4;Massages relaxants;50.0
-5;Sauna;25.0
+1;Spa;20.00;1
+2;Piscine chauffée;15.00;1
+3;Accès fitness;10.00;1
+4;Massages relaxants;50.00;1
+5;Sauna;30.00;1
+6;Service de crevettes;30.00;1
