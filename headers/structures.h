@@ -20,6 +20,7 @@ typedef struct extra {
     int id;
     char nom[50];
     float prix;
+    int disponible;
     struct extra* next;
 }Extra;
 
@@ -29,6 +30,8 @@ typedef struct Reservation {
     int idFormule;
     int* idExtras;
     int nbExtras;
+    int nbAdultes;
+    int nbEnfants;
     float total;
     struct Reservation* next;
 }Reservation;
