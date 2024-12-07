@@ -397,6 +397,12 @@ void afficherReservations(const char* nomFichier, Chambre* chambres, Formule* fo
         char extrasString[100];
 
         // Lecture des données dans une ligne
+        /*
+        *sscanf permet de :
+        * - Lire les champs structurés d'une ligne de réservation.
+        * - Convertir ces champs en types appropriés (entiers, flottants, chaînes).
+        * - Préparer ces données pour traitement ou affichage.
+        */
         if (sscanf(ligne, "%d;%d;%d;%d;%d;%d;%[^;];%f\n", &idClient, &idChambre, &idFormule, &nbExtras, &nbAdultes, &nbEnfants, extrasString, &total) == 8) {
             printf("\nID Client : %d\n", idClient);
             printf("ID Chambre : %d\n", idChambre);
@@ -424,8 +430,21 @@ void afficherReservations(const char* nomFichier, Chambre* chambres, Formule* fo
             }
 
             printf("Extras : ");
+
+            /*
+             *strtok sert à extraire les IDs d'extras d'une chaîne contenant plusieurs
+             *valeurs séparées par des virgules. Ces IDs sont ensuite utilisés pour
+             *rechercher et afficher des informations sur chaque extra.
+            */
             char* token = strtok(extrasString, ",");
             while (token) {
+
+                /*
+                *atoi :
+                * - Convertir les chaînes d'IDs d'extras en entiers.
+                * - Faciliter les comparaisons et la manipulation des IDs dans la liste chainée des extras.
+                */
+
                 int idExtra = atoi(token);
                 Extra* extra = extras;
                 while (extra) {
@@ -649,6 +668,8 @@ void sousMenuExtras(Extra** extras) {
         switch (choix) {
             case 1:
                 afficherTousExtras(*extras);
+                afficherExtrasDisponibles(*extras);
+                afficherExtrasNonDisponibles(*extras);
                 break;
 
             case 2: {
