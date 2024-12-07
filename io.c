@@ -71,7 +71,7 @@ void sauvegarderExtras(Extra* listeExtras, const char* nomFichier) {
 
     Extra* courant = listeExtras;
     while (courant != NULL) {
-        fprintf(fichier, "%d;%s;%.2f\n", courant->id, courant->nom, courant->prix);
+        fprintf(fichier, "%d;%s;%.2f;%d\n", courant->id, courant->nom, courant->prix, courant->disponible);
         courant = courant->next;
     }
     fclose(fichier);
@@ -149,7 +149,7 @@ Formule* chargerFormules(const char* nomFichier) {
 
 // Sauvegarde des réservations dans un fichier
 void sauvegarderReservations(Reservation* listeReservations, const char* nomFichier) {
-    FILE* fichier = fopen(nomFichier, "w");
+    FILE* fichier = fopen(nomFichier, "w"); // Ouvre en mode écriture pour écraser le contenu précédent
     if (!fichier) {
         printf("Erreur : Impossible de créer le fichier %s\n", nomFichier);
         return;
@@ -157,19 +157,21 @@ void sauvegarderReservations(Reservation* listeReservations, const char* nomFich
 
     Reservation* courant = listeReservations;
     while (courant != NULL) {
-        fprintf(fichier, "%d;%d;%d;%d;%d;%d;",
-            courant->idClient,
-            courant->idChambre,
-            courant->idFormule,
-            courant->nbExtras,
-            courant->nbAdultes,
-            courant->nbEnfants);
-        for (int i = 0; i < courant->nbExtras; i++) {
-            fprintf(fichier, "%d,", courant->idExtras[i]);
+        if (courant->idClient > 0 && courant->idChambre > 0 && courant->total > 0) {
+            fprintf(fichier, "%d;%d;%d;%d;", courant->idClient, courant->idChambre, courant->idFormule, courant->nbExtras);
+
+            for (int i = 0; i < courant->nbExtras; i++) {
+                fprintf(fichier, "%d", courant->idExtras[i]);
+                if (i < courant->nbExtras - 1) {
+                    fprintf(fichier, ",");
+                }
+            }
+
+            fprintf(fichier, ";%d;%d;%.2f\n", courant->nbAdultes, courant->nbEnfants, courant->total);
         }
-        fprintf(fichier, ";%.2f\n", courant->total);
         courant = courant->next;
     }
+
     fclose(fichier);
     printf("Réservations sauvegardées dans %s.\n", nomFichier);
 }
@@ -183,22 +185,25 @@ Reservation* chargerReservations(const char* nomFichier) {
 
     FILE* fichier = fopen(nomFichier, "r");
     Reservation* tete = NULL;
-    int idClient, idChambre, idFormule, nbExtras;
+    int idClient, idChambre, idFormule, nbExtras, nbAdultes, nbEnfants;
     char extras[100];
     float total;
 
-    while (fscanf(fichier, "%d;%d;%d;%d;%99[^;];%f\n", &idClient, &idChambre, &idFormule, &nbExtras, extras, &total) == 6) {
+    while (fscanf(fichier, "%d;%d;%d;%d;%99[^;];%d;%d;%f\n", &idClient, &idChambre, &idFormule, &nbExtras, extras, &nbAdultes, &nbEnfants, &total) == 8) {
         int* idExtras = (int*)malloc(nbExtras * sizeof(int));
-        if (!idExtras) {
-            printf("Erreur d'allocation mémoire pour les extras.\n");
-            fclose(fichier);
-            return tete;
+        char* token = strtok(extras, ",");
+        int count = 0;
+
+        while (token != NULL && count < nbExtras) {
+            if (*token != '\0') {
+                idExtras[count++] = atoi(token);
+            }
+            token = strtok(NULL, ",");
         }
 
-        char* token = strtok(extras, ",");
-        for (int i = 0; token != NULL && i < nbExtras; i++) {
-            idExtras[i] = atoi(token);
-            token = strtok(NULL, ",");
+        if (count != nbExtras) {
+            printf("Avertissement : Correction du nombre d'extras pour le client %d.\n", idClient);
+            nbExtras = count;
         }
 
         Reservation* nouvelle = (Reservation*)malloc(sizeof(Reservation));
@@ -207,10 +212,13 @@ Reservation* chargerReservations(const char* nomFichier) {
         nouvelle->idFormule = idFormule;
         nouvelle->idExtras = idExtras;
         nouvelle->nbExtras = nbExtras;
+        nouvelle->nbAdultes = nbAdultes;
+        nouvelle->nbEnfants = nbEnfants;
         nouvelle->total = total;
         nouvelle->next = tete;
         tete = nouvelle;
     }
+
     fclose(fichier);
     return tete;
 }
@@ -221,7 +229,7 @@ int compterUtilisationExtra(Reservation* reservations, int idExtra) {
     while (reservations != NULL) {
         for (int i = 0; i < reservations->nbExtras; i++) {
             if (reservations->idExtras[i] == idExtra) {
-                compteur += reservations->nbAdultes + reservations->nbEnfants; // Compter toutes les personnes
+                compteur += reservations->nbAdultes + reservations->nbEnfants;
             }
         }
         reservations = reservations->next;
@@ -229,7 +237,6 @@ int compterUtilisationExtra(Reservation* reservations, int idExtra) {
 
     return compteur;
 }
-
 
 void afficherMenu() {
     printf("\n--- Menu Principal ---\n");

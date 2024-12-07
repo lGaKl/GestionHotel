@@ -381,89 +381,43 @@ void afficherChambresPopulaires(Reservation* reservations, Chambre* chambres) {
     }
 }
 
-void afficherReservations(const char* nomFichier, Chambre* chambres, Formule* formules, Extra* extras) {
-    FILE* fichier = fopen(nomFichier, "r");
-    if (!fichier) {
-        printf("Erreur : Impossible d'ouvrir le fichier %s.\n", nomFichier);
-        return;
-    }
+#include <stdio.h>
+#include "headers/structures.h"
 
-    printf("\n--- Liste des Réservations ---\n");
+// Afficher toutes les réservations
+void afficherReservations(Reservation* listeReservations) {
+    printf("\n--- Liste des réservations ---\n");
 
-    char ligne[256];
-    while (fgets(ligne, sizeof(ligne), fichier)) {
-        int idClient, idChambre, idFormule, nbExtras, nbAdultes, nbEnfants;
-        float total;
-        char extrasString[100];
-
-        // Lecture des données dans une ligne
-        /*
-        *sscanf permet de :
-        * - Lire les champs structurés d'une ligne de réservation.
-        * - Convertir ces champs en types appropriés (entiers, flottants, chaînes).
-        * - Préparer ces données pour traitement ou affichage.
-        */
-        if (sscanf(ligne, "%d;%d;%d;%d;%d;%d;%[^;];%f\n", &idClient, &idChambre, &idFormule, &nbExtras, &nbAdultes, &nbEnfants, extrasString, &total) == 8) {
-            printf("\nID Client : %d\n", idClient);
-            printf("ID Chambre : %d\n", idChambre);
-
-            // Trouver le type de la chambre
-            Chambre* chambre = chambres;
-            while (chambre) {
-                if (chambre->id == idChambre) {
-                    printf("Type Chambre : %s, Prix : %.2f\n", chambre->type, chambre->prix);
-                    break;
-                }
-                chambre = chambre->next;
-            }
-
-            printf("ID Formule : %d\n", idFormule);
-
-            // Trouver le nom de la formule
-            Formule* formule = formules;
-            while (formule) {
-                if (formule->id == idFormule) {
-                    printf("Nom Formule : %s, Prix : %.2f\n", formule->nom, formule->prix);
-                    break;
-                }
-                formule = formule->next;
-            }
-
-            printf("Extras : ");
-
-            /*
-             *strtok sert à extraire les IDs d'extras d'une chaîne contenant plusieurs
-             *valeurs séparées par des virgules. Ces IDs sont ensuite utilisés pour
-             *rechercher et afficher des informations sur chaque extra.
-            */
-            char* token = strtok(extrasString, ",");
-            while (token) {
-
-                /*
-                *atoi :
-                * - Convertir les chaînes d'IDs d'extras en entiers.
-                * - Faciliter les comparaisons et la manipulation des IDs dans la liste chainée des extras.
-                */
-
-                int idExtra = atoi(token);
-                Extra* extra = extras;
-                while (extra) {
-                    if (extra->id == idExtra) {
-                        printf("%s (%.2f €) ", extra->nom, extra->prix);
-                        break;
-                    }
-                    extra = extra->next;
-                }
-                token = strtok(NULL, ",");
-            }
-            printf("\nNombre d'Adultes : %d\n", nbAdultes);
-            printf("Nombre d'Enfants : %d\n", nbEnfants);
-            printf("Total : %.2f €\n", total);
+    // Parcourir la liste des réservations
+    Reservation* courant = listeReservations;
+    while (courant != NULL) {
+        printf("Client ID: %d\n", courant->idClient);
+        printf("Chambre ID: %d\n", courant->idChambre);
+        printf("Formule ID: %d\n", courant->idFormule);
+        printf("Nombre d'extras: %d\n", courant->nbExtras);
+        printf("Extras: ");
+        for (int i = 0; i < courant->nbExtras; i++) {
+            printf("%d ", courant->idExtras[i]);
         }
+        printf("\nNombre d'adultes: %d\n", courant->nbAdultes);
+        printf("Nombre d'enfants: %d\n", courant->nbEnfants);
+        printf("Total: %.2f €\n", courant->total);
+        printf("-------------------------------\n");
+
+        // Passer à la réservation suivante
+        courant = courant->next;
     }
 
-    fclose(fichier);
-    printf("\n----------------------------\n");
+    if (listeReservations == NULL) {
+        printf("Aucune réservation trouvée.\n");
+    }
+
+    // Retour au menu
+    int retour;
+    do {
+        printf("Entrez 1 pour retourner au menu principal : ");
+        scanf("%d", &retour);
+    } while (retour != 1);
 }
 
 void afficherToutesFormules(Formule* listeFormules) {
@@ -804,7 +758,7 @@ void gestionDirecteur(Chambre** chambres, Extra** extras, Formule** formules, Re
             afficherChambresPopulaires(reservations, *chambres);
             break;
             case 5:
-                afficherReservations("../datas/reservations.txt", *chambres, *formules, *extras);
+                afficherReservations(reservations);
             break;
             case 6:
                 printf("Retour au menu principal.\n");
