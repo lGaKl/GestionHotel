@@ -381,9 +381,6 @@ void afficherChambresPopulaires(Reservation* reservations, Chambre* chambres) {
     }
 }
 
-#include <stdio.h>
-#include "headers/structures.h"
-
 // Afficher toutes les réservations
 void afficherReservations(Reservation* listeReservations) {
     printf("\n--- Liste des réservations ---\n");
@@ -421,6 +418,11 @@ void afficherReservations(Reservation* listeReservations) {
 }
 
 void afficherToutesFormules(Formule* listeFormules) {
+    if (!listeFormules) {
+        printf("Aucune formule à afficher.\n");
+        return;
+    }
+
     printf("\n--- Liste des Formules ---\n");
     Formule* courant = listeFormules;
     while (courant != NULL) {
@@ -680,15 +682,20 @@ void sousMenuFormules(Formule** formules) {
     int choix;
     do {
         printf("\n--- Gestion des Formules ---\n");
-        printf("1. Modifier le prix d'une formule\n");
-        printf("2. Ajouter une formule\n");
-        printf("3. Supprimer une formule\n");
-        printf("4. Retourner au menu précédent\n");
+        printf("1. Afficher les formules\n");
+        printf("2. Modifier le prix d'une formule\n");
+        printf("3. Ajouter une formule\n");
+        printf("4. Supprimer une formule\n");
+        printf("5. Retourner au menu précédent\n");
         printf("Votre choix : ");
         scanf("%d", &choix);
 
         switch (choix) {
             case 1: {
+                afficherToutesFormules(*formules);
+                break;
+            }
+            case 2: {
                 afficherToutesFormules(*formules);
                 int idFormule;
                 float nouveauPrix;
@@ -699,7 +706,7 @@ void sousMenuFormules(Formule** formules) {
                 modifierPrixFormule(*formules, idFormule, nouveauPrix, "../datas/formules.txt");
                 break;
             }
-            case 2: {
+            case 3: {
                 int id;
                 char nom[50];
                 float prix;
@@ -712,7 +719,7 @@ void sousMenuFormules(Formule** formules) {
                 *formules = ajouterFormule(*formules, id, nom, prix, "../datas/formules.txt");
                 break;
             }
-            case 3: {
+            case 4: {
                 afficherToutesFormules(*formules);
                 int idFormule;
                 printf("Entrez l'ID de la formule à supprimer : ");
@@ -720,13 +727,13 @@ void sousMenuFormules(Formule** formules) {
                 *formules = supprimerFormule(*formules, idFormule, "../datas/formules.txt");
                 break;
             }
-            case 4:
+            case 5:
                 printf("Retour au menu principal.\n");
-            break;
+                break;
             default:
                 printf("Choix invalide.\n");
         }
-    } while (choix != 4);
+    } while (choix != 5);
 }
 
 

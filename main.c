@@ -19,7 +19,7 @@ int main() {
 
         switch (choix) {
             case 1:
-                gestionDirecteur(&listeChambres, &listeExtras, listeFormules, listeReservations);
+                gestionDirecteur(&listeChambres, &listeExtras, &listeFormules, listeReservations);
             break;
             case 2:
                 faireReservation(listeChambres, listeFormules, listeExtras, &listeReservations);

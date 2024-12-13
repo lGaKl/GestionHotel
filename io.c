@@ -124,25 +124,32 @@ void sauvegarderFormules(Formule* listeFormules, const char* nomFichier) {
 
 // Chargement des formules depuis un fichier
 Formule* chargerFormules(const char* nomFichier) {
-    if (!fichierExiste(nomFichier)) {
-        printf("Avertissement : Fichier %s introuvable. Liste vide.\n", nomFichier);
+    FILE* fichier = fopen(nomFichier, "r");
+    if (!fichier) {
+        printf("Erreur : Impossible d'ouvrir le fichier %s.\n", nomFichier);
         return NULL;
     }
 
-    FILE* fichier = fopen(nomFichier, "r");
     Formule* tete = NULL;
     int id;
     char nom[50];
     float prix;
 
     while (fscanf(fichier, "%d;%49[^;];%f\n", &id, nom, &prix) == 3) {
-        Formule* nouvelleFormule = (Formule*)malloc(sizeof(Formule));
-        nouvelleFormule->id = id;
-        strcpy(nouvelleFormule->nom, nom);
-        nouvelleFormule->prix = prix;
-        nouvelleFormule->next = tete;
-        tete = nouvelleFormule;
+        //printf("Chargement : ID = %d, Nom = %s, Prix = %.2f\n", id, nom, prix); // Débogage
+        Formule* nouvelle = (Formule*)malloc(sizeof(Formule));
+        if (!nouvelle) {
+            printf("Erreur d'allocation mémoire.\n");
+            fclose(fichier);
+            return tete;
+        }
+        nouvelle->id = id;
+        strcpy(nouvelle->nom, nom);
+        nouvelle->prix = prix;
+        nouvelle->next = tete;
+        tete = nouvelle;
     }
+
     fclose(fichier);
     return tete;
 }
